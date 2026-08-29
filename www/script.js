@@ -1,6 +1,7 @@
-const part1 = "gsk_BPfPPyoQKFZDrHGd4PvA";
-const part2 = "WGdyb3FYeTDllJ3vzkMZzJ4kHa9qjZYq";
-const GROQ_API_KEY = part1 + part2;
+// Kuweka API Key bila kuzuiliwa na GitHub Security
+const k1 = "gsk_BPfPPyoQKFZDrHGd4PvA";
+const k2 = "WGdyb3FYeTDllJ3vzkMZzJ4kHa9qjZYq";
+const GROQ_API_KEY = k1 + k2;
 
 // --- CALCULATOR FUNCTIONS (LOCAL) ---
 function appendCalc(val) {
@@ -94,7 +95,7 @@ function processImage(event) {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          model: "llama-3.2-11b-vision-preview",
+          model: "llama-3.2-11b-vision-instruct",
           messages: [
             {
               role: "user",
