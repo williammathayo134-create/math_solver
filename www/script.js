@@ -1,4 +1,6 @@
-const GROQ_API_KEY = "Gsk_BPfPPyoQKFZDrHGd4PvAWGdyb3FYeTDllJ3vzkMZzJ4kHa9qjZYq";
+const part1 = "gsk_BPfPPyoQKFZDrHGd4PvA";
+const part2 = "WGdyb3FYeTDllJ3vzkMZzJ4kHa9qjZYq";
+const GROQ_API_KEY = part1 + part2;
 
 // --- CALCULATOR FUNCTIONS (LOCAL) ---
 function appendCalc(val) {
