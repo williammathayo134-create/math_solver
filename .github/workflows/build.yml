@@ -16,7 +16,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Install Dependencies
         run: npm install
@@ -41,4 +41,3 @@ jobs:
         with:
           name: MathSolver-App-Debug
           path: android/app/build/outputs/apk/debug/app-debug.apk
-
