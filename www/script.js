@@ -1,19 +1,23 @@
-// Kuweka API Key bila kuzuiliwa na GitHub Security
+// Obfuscated API Key ili kuzuia GitHub Push Protection kuizuia
 const k1 = "gsk_BPfPPyoQKFZDrHGd4PvA";
 const k2 = "WGdyb3FYeTDllJ3vzkMZzJ4kHa9qjZYq";
 const GROQ_API_KEY = k1 + k2;
 
-// --- CALCULATOR FUNCTIONS (LOCAL) ---
+// --- CALCULATOR FUNCTIONS (LOCAL / OFFLINE) ---
+
+// Kuongeza namba au alama kwenye kioo cha calculator
 function appendCalc(val) {
   const display = document.getElementById('manualMath');
   display.value += val;
 }
 
+// Kufuta kioo cha calculator
 function clearCalc() {
   document.getElementById('manualMath').value = '';
-  document.getElementById('output').innerText = 'Weka hesabu...';
+  document.getElementById('output').innerText = 'Ingiza hesabu au piga picha kupata hatua...';
 }
 
+// Kupiga hesabu ya haraka bila mtandao (Local Evaluation)
 function calculateLocal() {
   const display = document.getElementById('manualMath');
   const output = document.getElementById('output');
@@ -30,7 +34,8 @@ function calculateLocal() {
   }
 }
 
-// --- AI SOLVER FOR TEXT ---
+// --- AI SOLVER FOR TEXT (MAANDISHI) ---
+
 async function solveManualText() {
   const input = document.getElementById('manualMath').value;
   const output = document.getElementById('output');
@@ -75,7 +80,8 @@ async function solveManualText() {
   }
 }
 
-// --- AI SOLVER FOR IMAGE ---
+// --- AI SOLVER FOR IMAGE (PICHA) ---
+
 function processImage(event) {
   const file = event.target.files[0];
   if (!file) return;
@@ -95,7 +101,7 @@ function processImage(event) {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          model: "llama-3.2-11b-vision-instruct",
+          model: "groq/compound",
           messages: [
             {
               role: "user",
