@@ -1,13 +1,14 @@
 // GitHub Secrets itaingiza API key yako halisi hapa kiotomatiki wakati wa kujenga APK
 const GROQ_API_KEY = "__GROQ_API_KEY__";
 
-// Models rasmi zilizopo kwenye Groq Console yako
-const MODELS = [
-  "llama-3.1-8b-instant",
+// Orodha ya Text Models za Akiba
+const TEXT_MODELS = [
   "llama-3.3-70b-versatile",
-  "openai/gpt-oss-120b",
-  "openai/gpt-oss-20b"
+  "llama-3.1-8b-instant"
 ];
+
+// Model ya Vision AI ya ku-scan picha moja kwa moja
+const VISION_MODEL = "llama-3.2-11b-vision-preview";
 
 // --- CALCULATOR FUNCTIONS (LOCAL / OFFLINE) ---
 function appendCalc(val) {
@@ -36,7 +37,7 @@ function calculateLocal() {
   }
 }
 
-// --- CORE AI SOLVER FUNCTION WITH AUTOMATIC FALLBACK ---
+// --- AI SOLVER FOR TEXT WITH AUTOMATIC FALLBACK ---
 async function sendToAI(mathText) {
   const output = document.getElementById('output');
   output.innerText = "🟢 WILLY CALCULATOR inachakata majibu...";
@@ -44,9 +45,8 @@ async function sendToAI(mathText) {
   let success = false;
   let lastError = "";
 
-  // Mfumo unazunguka kwenye kila model hadi ipatikane inayofanya kazi
-  for (let i = 0; i < MODELS.length; i++) {
-    const currentModel = MODELS[i];
+  for (let i = 0; i < TEXT_MODELS.length; i++) {
+    const currentModel = TEXT_MODELS[i];
     try {
       const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
         method: "POST",
@@ -72,7 +72,7 @@ async function sendToAI(mathText) {
       if (data.choices && data.choices[0] && data.choices[0].message) {
         output.innerText = data.choices[0].message.content;
         success = true;
-        break; // Acha mara moja ikipata jibu
+        break;
       } else if (data.error) {
         lastError = data.error.message;
       }
@@ -81,13 +81,12 @@ async function sendToAI(mathText) {
     }
   }
 
-  // Kama model zote zimefeli
   if (!success) {
-    output.innerText = "⚠️ Imeshindwa kupata jibu kutoka kwenye Server.\nHitilafu ya Mwisho: " + lastError;
+    output.innerText = "⚠️ Imeshindwa kupata jibu kutoka kwenye Server.\nHitilafu: " + lastError;
   }
 }
 
-// --- AI SOLVER FOR TEXT ---
+// --- AI SOLVER FOR TEXT BUTTON ---
 function solveManualText() {
   const input = document.getElementById('manualMath').value;
   if (!input.trim()) {
@@ -97,27 +96,61 @@ function solveManualText() {
   sendToAI(input);
 }
 
-// --- AI SOLVER FOR IMAGE (OCR) ---
+// --- VISION AI SCANNER (DIRECT IMAGE MATH SOLVER) ---
 async function processImage(event) {
   const file = event.target.files[0];
   if (!file) return;
 
   const output = document.getElementById('output');
-  output.innerText = "🔍 Inasoma hesabu kwenye picha...";
+  output.innerText = "🔍 Vision AI inasoma na kutatua hesabu kwenye picha...";
 
-  try {
-    const result = await Tesseract.recognize(file, 'eng');
-    const mathText = result.data.text.trim();
+  const reader = new FileReader();
+  reader.onloadend = async function () {
+    const base64Image = reader.result;
 
-    if (!mathText) {
-      output.innerText = "⚠️ Imeshindwa kusoma hesabu kwenye picha. Jaribu kupiga picha iliyonyooka.";
-      return;
+    try {
+      const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${GROQ_API_KEY}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          model: VISION_MODEL,
+          messages: [
+            {
+              role: "user",
+              content: [
+                {
+                  type: "text",
+                  text: "Soma hesabu iliyopo kwenye picha hii (iwe ya mkono au iliyochapishwa), kisha uitatue na utoe majibu pamoja na hatua zote kwa Kiswahili rasmi na ufasaha."
+                },
+                {
+                  type: "image_url",
+                  image_url: {
+                    url: base64Image
+                  }
+                }
+              ]
+            }
+          ],
+          temperature: 0.2
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.choices && data.choices[0] && data.choices[0].message) {
+        output.innerText = data.choices[0].message.content;
+      } else if (data.error) {
+        output.innerText = "Hitilafu ya Vision AI: " + data.error.message;
+      } else {
+        output.innerText = "Imeshindwa kusoma picha, jaribu kupiga picha iliyonyooka.";
+      }
+    } catch (err) {
+      output.innerText = "Hitilafu ya Mtandao wakati wa ku-scan: " + err.message;
     }
+  };
 
-    document.getElementById('manualMath').value = mathText;
-    await sendToAI(mathText);
-
-  } catch (err) {
-    output.innerText = "Hitilafu ya OCR: " + err.message;
-  }
+  reader.readAsDataURL(file);
 }

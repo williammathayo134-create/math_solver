@@ -5,83 +5,119 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>WILLY CALCULATOR</title>
   <style>
-    body { background-color: #121212; color: #fff; font-family: sans-serif; padding: 12px; }
-    h2 { color: #4CAF50; text-align: center; margin: 10px 0 2px 0; font-size: 22px; }
-    .status { text-align: center; font-size: 12px; color: #4CAF50; margin-bottom: 12px; }
-    .card { background: #1e1e1e; padding: 12px; border-radius: 10px; margin-bottom: 12px; }
-
-    /* Calculator Screen */
-    #manualMath {
-      width: 100%; height: 55px; background: #000; color: #00ffcc;
-      border: 1px solid #333; border-radius: 6px; padding: 8px;
-      box-sizing: border-box; font-size: 20px; font-family: monospace;
-      margin-bottom: 10px; text-align: right; resize: none;
-    }
-
-    /* Keypad Grid */
-    .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 10px; }
-    .btn-calc { padding: 14px 0; background: #2c2c2c; color: #fff; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; }
-    .btn-calc:active { background: #444; }
-    .btn-op { background: #FF9800; color: #000; }
-    .btn-equal { background: #4CAF50; color: #fff; grid-column: span 2; }
+    * { box-sizing: border-box; }
+    body { background-color: #121212; color: #fff; font-family: Arial, sans-serif; padding: 10px; margin: 0; }
+    h2 { text-align: center; color: #4CAF50; margin-bottom: 2px; margin-top: 5px; }
+    .status { text-align: center; font-size: 11px; color: #888; margin-bottom: 10px; }
+    
+    #manualMath { width: 100%; height: 55px; font-size: 22px; background: #000; color: #0f0; text-align: right; border: 1px solid #333; padding: 8px; border-radius: 6px; margin-bottom: 8px; }
+    
+    /* Scientific Grid - 5 Columns */
+    .sci-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; margin-bottom: 6px; }
+    .sci-btn { background: #262626; color: #00e676; border: 1px solid #333; padding: 10px 2px; font-size: 12px; border-radius: 4px; font-weight: bold; cursor: pointer; }
+    .sci-btn:active { background: #333; }
+    .mem-btn { color: #ffca28; }
+    
+    /* Basic Keypad Grid */
+    .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+    button.grid-btn { padding: 14px 2px; font-size: 18px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+    .btn-num { background: #1e1e1e; color: #fff; }
+    .btn-op { background: #ff9800; color: #fff; }
     .btn-clear { background: #f44336; color: #fff; }
-
-    /* Action Buttons */
-    .btn-action { width: 100%; padding: 12px; background: #2196F3; color: white; border: none; border-radius: 6px; font-size: 15px; font-weight: bold; margin-bottom: 8px; }
-    .btn-action:active { opacity: 0.8; }
-    .result-box { background: #2b2b2b; padding: 12px; border-radius: 6px; min-height: 80px; font-size: 14px; white-space: pre-wrap; line-height: 1.5; }
+    .btn-equal { background: #4CAF50; color: #fff; grid-column: span 2; }
+    
+    .action-btn { width: 100%; padding: 12px; margin-top: 8px; font-size: 15px; font-weight: bold; border: none; border-radius: 5px; cursor: pointer; }
+    .btn-ai { background: #2196F3; color: white; }
+    .btn-img { background: #0288d1; color: white; }
+    
+    #output { margin-top: 12px; background: #1e1e1e; padding: 12px; border-radius: 5px; font-size: 14px; white-space: pre-wrap; word-wrap: break-word; min-height: 80px; border-left: 4px solid #4CAF50; }
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
 </head>
 <body>
 
   <h2>WILLY CALCULATOR</h2>
-  <div class="status">🟢 Online & Offline Calculator</div>
+  <div class="status">🟢 Universal Professional Scientific Calculator</div>
 
-  <!-- CALCULATOR PAD -->
-  <div class="card">
-    <textarea id="manualMath" placeholder="0"></textarea>
+  <input type="text" id="manualMath" placeholder="0">
 
-    <div class="calc-grid">
-      <button class="btn-calc btn-clear" onclick="clearCalc()">C</button>
-      <button class="btn-calc" onclick="appendCalc('(')">(</button>
-      <button class="btn-calc" onclick="appendCalc(')')">)</button>
-      <button class="btn-calc btn-op" onclick="appendCalc('/')">÷</button>
+  <!-- Scientific Keys -->
+  <div class="sci-grid">
+    <!-- Memory & Modes -->
+    <button class="sci-btn mem-btn" onclick="appendCalc('MC')">MC</button>
+    <button class="sci-btn mem-btn" onclick="appendCalc('MR')">MR</button>
+    <button class="sci-btn mem-btn" onclick="appendCalc('M+')">M+</button>
+    <button class="sci-btn mem-btn" onclick="appendCalc('M-')">M-</button>
+    <button class="sci-btn" onclick="appendCalc('Deg')">Deg/Rad</button>
 
-      <button class="btn-calc" onclick="appendCalc('7')">7</button>
-      <button class="btn-calc" onclick="appendCalc('8')">8</button>
-      <button class="btn-calc" onclick="appendCalc('9')">9</button>
-      <button class="btn-calc btn-op" onclick="appendCalc('*')">×</button>
+    <!-- Trigonometry -->
+    <button class="sci-btn" onclick="appendCalc('sin(')">sin</button>
+    <button class="sci-btn" onclick="appendCalc('cos(')">cos</button>
+    <button class="sci-btn" onclick="appendCalc('tan(')">tan</button>
+    <button class="sci-btn" onclick="appendCalc('asin(')">sin⁻¹</button>
+    <button class="sci-btn" onclick="appendCalc('acos(')">cos⁻¹</button>
 
-      <button class="btn-calc" onclick="appendCalc('4')">4</button>
-      <button class="btn-calc" onclick="appendCalc('5')">5</button>
-      <button class="btn-calc" onclick="appendCalc('6')">6</button>
-      <button class="btn-calc btn-op" onclick="appendCalc('-')">-</button>
+    <!-- Hyperbolic & Inverses -->
+    <button class="sci-btn" onclick="appendCalc('sinh(')">sinh</button>
+    <button class="sci-btn" onclick="appendCalc('cosh(')">cosh</button>
+    <button class="sci-btn" onclick="appendCalc('tanh(')">tanh</button>
+    <button class="sci-btn" onclick="appendCalc('atan(')">tan⁻¹</button>
+    <button class="sci-btn" onclick="appendCalc('Matrix([');">[Matrix]</button>
 
-      <button class="btn-calc" onclick="appendCalc('1')">1</button>
-      <button class="btn-calc" onclick="appendCalc('2')">2</button>
-      <button class="btn-calc" onclick="appendCalc('3')">3</button>
-      <button class="btn-calc btn-op" onclick="appendCalc('+')">+</button>
+    <!-- Logs & Powers -->
+    <button class="sci-btn" onclick="appendCalc('log(')">log</button>
+    <button class="sci-btn" onclick="appendCalc('ln(')">ln</button>
+    <button class="sci-btn" onclick="appendCalc('^')">x^y</button>
+    <button class="sci-btn" onclick="appendCalc('^2')">x²</button>
+    <button class="sci-btn" onclick="appendCalc('^3')">x³</button>
 
-      <button class="btn-calc" onclick="appendCalc('0')">0</button>
-      <button class="btn-calc" onclick="appendCalc('.')">.</button>
-      <button class="btn-calc btn-equal" onclick="calculateLocal()">=</button>
-    </div>
+    <!-- Roots & Factors -->
+    <button class="sci-btn" onclick="appendCalc('sqrt(')">√x</button>
+    <button class="sci-btn" onclick="appendCalc('cbrt(')">∛x</button>
+    <button class="sci-btn" onclick="appendCalc('!')">n!</button>
+    <button class="sci-btn" onclick="appendCalc('%')">%</button>
+    <button class="sci-btn" onclick="appendCalc('Mod')">Mod</button>
 
-    <button class="btn-action" onclick="solveManualText()">Fafanua kwa Math Solver AI</button>
+    <!-- Constants & Fractions -->
+    <button class="sci-btn" onclick="appendCalc('pi')">π</button>
+    <button class="sci-btn" onclick="appendCalc('e')">e</button>
+    <button class="sci-btn" onclick="appendCalc('1/')">1/x</button>
+    <button class="sci-btn" onclick="appendCalc('abs(')">|x|</button>
+    <button class="sci-btn" onclick="appendCalc('EXP')">EXP</button>
   </div>
 
-  <!-- PICHA -->
-  <div class="card">
-    <input type="file" id="imageInput" accept="image/*" capture="environment" style="display:none" onchange="processImage(event)">
-    <button class="btn-action" onclick="document.getElementById('imageInput').click()">📸 Piga Picha / Chagua Picha</button>
+  <!-- Standard Keypad -->
+  <div class="calc-grid">
+    <button class="grid-btn btn-clear" onclick="clearCalc()">C</button>
+    <button class="grid-btn btn-num" onclick="appendCalc('(')">(</button>
+    <button class="grid-btn btn-num" onclick="appendCalc(')')">)</button>
+    <button class="grid-btn btn-op" onclick="appendCalc('/')">÷</button>
+
+    <button class="grid-btn btn-num" onclick="appendCalc('7')">7</button>
+    <button class="grid-btn btn-num" onclick="appendCalc('8')">8</button>
+    <button class="grid-btn btn-num" onclick="appendCalc('9')">9</button>
+    <button class="grid-btn btn-op" onclick="appendCalc('*')">×</button>
+
+    <button class="grid-btn btn-num" onclick="appendCalc('4')">4</button>
+    <button class="grid-btn btn-num" onclick="appendCalc('5')">5</button>
+    <button class="grid-btn btn-num" onclick="appendCalc('6')">6</button>
+    <button class="grid-btn btn-op" onclick="appendCalc('-')">-</button>
+
+    <button class="grid-btn btn-num" onclick="appendCalc('1')">1</button>
+    <button class="grid-btn btn-num" onclick="appendCalc('2')">2</button>
+    <button class="grid-btn btn-num" onclick="appendCalc('3')">3</button>
+    <button class="grid-btn btn-op" onclick="appendCalc('+')">+</button>
+
+    <button class="grid-btn btn-num" onclick="appendCalc('0')">0</button>
+    <button class="grid-btn btn-num" onclick="appendCalc('.')">.</button>
+    <button class="grid-btn btn-equal" onclick="calculateLocal()">=</button>
   </div>
 
-  <!-- WAJIBU -->
-  <div class="card">
-    <strong>Jibu na Hatua:</strong>
-    <div id="output" class="result-box">Ingiza hesabu au ubonyeze vitufe kupata majibu...</div>
-  </div>
+  <button class="action-btn btn-ai" onclick="solveManualText()">Fafanua kwa Math Solver AI</button>
+  
+  <input type="file" id="imageInput" accept="image/*" style="display:none" onchange="processImage(event)">
+  <button class="action-btn btn-img" onclick="document.getElementById('imageInput').click()">📸 Piga Picha / Chagua Picha</button>
+
+  <div id="output">Jibu na Hatua zinaonekana hapa...</div>
 
   <script src="script.js"></script>
 </body>
