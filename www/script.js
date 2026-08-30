@@ -1,7 +1,40 @@
 // GitHub Secrets itaingiza API key yako halisi hapa kiotomatiki
 const GROQ_API_KEY = "__GROQ_API_KEY__";
 
-// Function ya kuvuta Model iliyo hai (Active) moja kwa moja kutoka Groq API
+// Toleo la sasa la App kwenye simu
+const CURRENT_VERSION = "1.0.0";
+
+// Badilisha USERNAME na REPOSITORY hapa chini na za kwako za GitHub
+const VERSION_CHECK_URL = "https://raw.githubusercontent.com/USERNAME/REPOSITORY/main/www/version.json";
+
+// --- AUTO UPDATE CHECKER ---
+async function checkForAppUpdates() {
+  try {
+    const response = await fetch(VERSION_CHECK_URL + "?t=" + Date.now());
+    const data = await response.json();
+
+    if (data.version && data.version !== CURRENT_VERSION) {
+      const output = document.getElementById('output');
+      output.innerHTML = `
+        <div style="background: #1b5e20; padding: 10px; border-radius: 5px; color: #fff; margin-bottom: 10px;">
+          🚀 <b>Toleo Jipya (${data.version}) Linapatikana!</b><br>
+          <button onclick="window.open('${data.download_url}', '_system')" style="margin-top: 8px; padding: 8px; background: #4CAF50; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer;">
+            Pakua Update Mpya
+          </button>
+        </div>
+      ` + output.innerHTML;
+    }
+  } catch (err) {
+    console.log("Haikufanikiwa kuangalia update:", err);
+  }
+}
+
+// Inakagua update pale tu app inapofunguka
+window.addEventListener('DOMContentLoaded', () => {
+  checkForAppUpdates();
+});
+
+// --- DYNAMIC MODEL FETCHING FROM GROQ ---
 async function getActiveTextModel() {
   try {
     const res = await fetch("https://api.groq.com/openai/v1/models", {
@@ -9,14 +42,12 @@ async function getActiveTextModel() {
     });
     const data = await res.json();
     if (data.data && data.data.length > 0) {
-      // Chuja model za sauti (whisper) na uchukue ya kwanza ya maandishi
-      const textModels = data.data.filter(m => !m.id.includes("whisper"));
+      const textModels = data.data.filter(m => !m.id.includes("whisper") && !m.id.includes("vision"));
       return textModels[0].id;
     }
   } catch (err) {
     console.error("Imeshindwa kupata orodha ya models:", err);
   }
-  // Model ya akiba kama server haijajibu orodha
   return "llama-3.3-70b-versatile";
 }
 
@@ -53,7 +84,6 @@ async function sendToAI(mathText) {
   output.innerText = "🟢 WILLY CALCULATOR inafuta model hai na kuchakata majibu...";
 
   try {
-    // Pata model iliyopo hewani hivi sasa
     const activeModel = await getActiveTextModel();
 
     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
