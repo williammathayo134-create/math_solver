@@ -2,28 +2,27 @@
 <html lang="sw">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>WILLY CALCULATOR - CASIO ES PLUS EDITION</title>
   <style>
-    * { box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
-    body { background-color: #0b0d0e; color: #fff; margin: 0; padding: 10px; display: flex; justify-content: center; overflow-x: hidden; }
+    * { box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; user-select: none; }
+    html, body { width: 100%; height: 100%; margin: 0; padding: 0; background-color: #1b1e23; overflow: hidden; }
 
-    /* CASIO OUTER SHELL */
+    /* CASIO FULLSCREEN CONTAINER */
     .casio-body {
+      width: 100vw;
+      height: 100vh;
       background: linear-gradient(145deg, #282c34, #1b1e23);
-      width: 100%;
-      max-width: 380px;
-      padding: 14px;
-      border-radius: 28px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.9), inset 0 1px 1px rgba(255,255,255,0.15);
-      border: 1px solid #3d434d;
-      position: relative;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
     }
 
-    .casio-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
+    .casio-header { display: flex; justify-content: space-between; align-items: center; }
     .brand-title { font-size: 22px; font-weight: 900; letter-spacing: 1px; color: #fff; }
-    .model-sub { font-size: 11px; color: #abb2bf; font-weight: bold; }
-    .vpam-tag { font-size: 9px; color: #7f848e; text-align: center; margin-top: -8px; margin-bottom: 8px; letter-spacing: 1px; }
+    .model-sub { font-size: 12px; color: #abb2bf; font-weight: bold; }
+    .vpam-tag { font-size: 9px; color: #7f848e; text-align: center; margin-top: -4px; margin-bottom: 4px; letter-spacing: 1px; }
 
     /* LCD SCREEN */
     .lcd-container {
@@ -33,40 +32,41 @@
       border-radius: 8px;
       border: 4px solid #111;
       box-shadow: inset 0 3px 6px rgba(0,0,0,0.4);
-      margin-bottom: 12px;
+      flex-grow: 0;
+      min-height: 90px;
     }
     .lcd-status { font-size: 10px; height: 14px; display: flex; justify-content: space-between; font-family: monospace; color: #333; }
-    .lcd-expr { width: 100%; border: none; background: transparent; font-family: 'Courier New', monospace; font-size: 18px; text-align: right; color: #111; outline: none; margin-bottom: 4px; }
-    .lcd-result { font-family: 'Courier New', monospace; font-size: 26px; font-weight: bold; text-align: right; height: 32px; overflow-x: auto; color: #000; }
+    .lcd-expr { width: 100%; border: none; background: transparent; font-family: 'Courier New', monospace; font-size: 20px; text-align: right; color: #111; outline: none; margin-bottom: 4px; }
+    .lcd-result { font-family: 'Courier New', monospace; font-size: 28px; font-weight: bold; text-align: right; color: #000; overflow-x: auto; }
 
-    /* CONTROLS & REPLAY DPAD */
-    .nav-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 0 4px; }
-    .round-btn { width: 42px; height: 26px; border-radius: 13px; border: none; background: #3e4451; color: #fff; font-size: 9px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 0 #111; }
+    /* NAV CONTROLS & REPLAY */
+    .nav-row { display: flex; justify-content: space-between; align-items: center; margin: 4px 0; }
+    .round-btn { width: 44px; height: 28px; border-radius: 14px; border: none; background: #3e4451; color: #fff; font-size: 9px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 0 #111; }
     .round-btn:active { transform: translateY(1px); box-shadow: none; }
     .btn-shift { color: #d19a66 !important; }
     .btn-alpha { color: #e06c75 !important; }
 
     .dpad {
-      width: 100px; height: 48px; background: #282c34; border: 2px solid #4b5263; border-radius: 24px;
-      display: flex; justify-content: space-around; align-items: center; color: #abb2bf; font-size: 10px; cursor: pointer;
+      width: 110px; height: 44px; background: #282c34; border: 2px solid #4b5263; border-radius: 22px;
+      display: flex; justify-content: space-around; align-items: center; color: #abb2bf; font-size: 10px; font-weight: bold;
       box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
     }
 
-    /* SCIENTIFIC FUNCTION KEYS (4 ROWS) */
-    .sci-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin-bottom: 10px; }
-    .sci-grid-top { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 6px; }
+    /* SCIENTIFIC FUNCTION KEYS */
+    .sci-grid-top { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 4px; }
+    .sci-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; margin-bottom: 6px; }
     
     .btn-sci {
       background: linear-gradient(180deg, #3b404a, #2c313a);
-      color: #dcdfe4; border: none; padding: 8px 2px; font-size: 11px; font-weight: bold;
+      color: #dcdfe4; border: none; padding: 10px 2px; font-size: 11px; font-weight: bold;
       border-radius: 5px; box-shadow: 0 2px 0 #181a1f; cursor: pointer;
     }
     .btn-sci:active { transform: translateY(1px); box-shadow: none; }
 
-    /* MAIN KEYPAD */
-    .main-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 50px; }
+    /* MAIN NUMERIC KEYPAD */
+    .main-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 6px; }
     .btn-key {
-      padding: 12px 2px; font-size: 15px; font-weight: bold; border: none; border-radius: 6px; cursor: pointer;
+      padding: 14px 2px; font-size: 18px; font-weight: bold; border: none; border-radius: 6px; cursor: pointer;
       box-shadow: 0 3px 0 #111;
     }
     .btn-key:active { transform: translateY(2px); box-shadow: none; }
@@ -75,83 +75,86 @@
     .btn-del-ac { background: #8cc269; color: #111; font-weight: 900; }
     .btn-eq { background: #3e4451; color: #fff; }
 
-    /* BOTTOM DRAWER FOR AI SCANNER */
-    .online-drawer {
-      position: fixed; bottom: 0; left: 0; right: 0; background: #1e222b; border-top: 3px solid #8cc269;
-      border-top-left-radius: 18px; border-top-right-radius: 18px; padding: 12px;
-      transform: translateY(calc(100% - 36px)); transition: transform 0.3s ease-in-out; z-index: 1000;
+    /* TERMUX-STYLE SIDE DRAWER (LEFT TO RIGHT SWIPE) */
+    .side-drawer {
+      position: fixed; top: 0; left: 0; bottom: 0; width: 80vw; max-width: 320px;
+      background: #181a1f; border-right: 3px solid #61afef; padding: 18px 12px;
+      transform: translateX(-100%); transition: transform 0.28s ease-in-out;
+      z-index: 2000; box-shadow: 5px 0 25px rgba(0,0,0,0.8); display: flex; flex-direction: column;
     }
-    .online-drawer.open { transform: translateY(0); }
-    .drawer-handle { width: 45px; height: 5px; background: #8cc269; border-radius: 3px; margin: 0 auto 8px auto; cursor: pointer; }
-    .drawer-title { text-align: center; font-size: 12px; font-weight: bold; color: #98c379; margin-bottom: 8px; cursor: pointer; }
-    
-    .action-btn { width: 100%; padding: 10px; margin-top: 6px; font-size: 14px; font-weight: bold; border: none; border-radius: 5px; cursor: pointer; }
+    .side-drawer.open { transform: translateX(0); }
+
+    .drawer-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.6); opacity: 0; pointer-events: none;
+      transition: opacity 0.28s ease-in-out; z-index: 1999;
+    }
+    .drawer-overlay.active { opacity: 1; pointer-events: auto; }
+
+    .drawer-header { font-size: 16px; font-weight: bold; color: #61afef; margin-bottom: 12px; border-bottom: 1px solid #3e4451; padding-bottom: 8px; }
+    .action-btn { width: 100%; padding: 12px; margin-top: 8px; font-size: 13px; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; }
     .btn-ai { background: #61afef; color: white; }
     .btn-camera { background: #98c379; color: #111; }
     .btn-gallery { background: #e5c07b; color: #111; }
-    #output { margin-top: 8px; background: #111; color: #98c379; padding: 10px; border-radius: 5px; font-size: 13px; max-height: 150px; overflow-y: auto; white-space: pre-wrap; }
+    #output { margin-top: 12px; background: #0f1115; color: #98c379; padding: 10px; border-radius: 6px; font-size: 12px; flex-grow: 1; overflow-y: auto; white-space: pre-wrap; border: 1px solid #282c34; }
   </style>
 </head>
 <body>
 
+  <!-- CALCULATOR FULLSCREEN -->
   <div class="casio-body">
-    <!-- BRAND HEADER -->
-    <div class="casio-header">
-      <div>
+    <div>
+      <div class="casio-header">
         <div class="brand-title">CASIO</div>
+        <div class="model-sub">fx-570ES PLUS</div>
       </div>
-      <div class="model-sub">fx-570ES PLUS</div>
-    </div>
-    <div class="vpam-tag">NATURAL-V.P.A.M. 2nd edition</div>
+      <div class="vpam-tag">NATURAL-V.P.A.M. 2nd edition</div>
 
-    <!-- LCD SCREEN DISPLAY -->
-    <div class="lcd-container">
-      <div class="lcd-status"><span>D</span><span>Math ▲</span></div>
-      <input type="text" id="manualMath" class="lcd-expr" placeholder="0" readonly>
-      <div id="lcdResult" class="lcd-result">0</div>
-    </div>
+      <div class="lcd-container">
+        <div class="lcd-status"><span>D</span><span>Math ▲</span></div>
+        <input type="text" id="manualMath" class="lcd-expr" placeholder="0" readonly>
+        <div id="lcdResult" class="lcd-result">0</div>
+      </div>
 
-    <!-- NAV CONTROLS & REPLAY -->
-    <div class="nav-row">
-      <button class="round-btn btn-shift">SHIFT</button>
-      <button class="round-btn btn-alpha">ALPHA</button>
-      <div class="dpad" onclick="toggleDrawer()">◀ REPLAY ▶</div>
-      <button class="round-btn" onclick="clearCalc()">MODE</button>
-      <button class="round-btn" onclick="clearCalc()">ON</button>
-    </div>
+      <div class="nav-row">
+        <button class="round-btn btn-shift">SHIFT</button>
+        <button class="round-btn btn-alpha">ALPHA</button>
+        <div class="dpad">◀ REPLAY ▶</div>
+        <button class="round-btn" onclick="clearCalc()">MODE</button>
+        <button class="round-btn" onclick="clearCalc()">ON</button>
+      </div>
 
-    <!-- SCIENTIFIC FUNCTION KEYS -->
-    <div class="sci-grid-top">
-      <button class="btn-sci" onclick="appendCalc('solve(')">CALC</button>
-      <button class="btn-sci" onclick="appendCalc('d/dx(')">∫dx</button>
-      <button class="btn-sci" onclick="appendCalc('^-1')">x⁻¹</button>
-      <button class="btn-sci" onclick="appendCalc('log(')">logₛx</button>
-    </div>
+      <div class="sci-grid-top">
+        <button class="btn-sci" onclick="appendCalc('solve(')">CALC</button>
+        <button class="btn-sci" onclick="appendCalc('d/dx(')">∫dx</button>
+        <button class="btn-sci" onclick="appendCalc('^-1')">x⁻¹</button>
+        <button class="btn-sci" onclick="appendCalc('log(')">logₛx</button>
+      </div>
 
-    <div class="sci-grid">
-      <button class="btn-sci" onclick="appendCalc('/')">aᵇ/c</button>
-      <button class="btn-sci" onclick="appendCalc('Math.sqrt(')">√x</button>
-      <button class="btn-sci" onclick="appendCalc('^2')">x²</button>
-      <button class="btn-sci" onclick="appendCalc('^')">xⁿ</button>
-      <button class="btn-sci" onclick="appendCalc('Math.log10(')">log</button>
-      <button class="btn-sci" onclick="appendCalc('Math.log(')">ln</button>
+      <div class="sci-grid">
+        <button class="btn-sci" onclick="appendCalc('/')">aᵇ/c</button>
+        <button class="btn-sci" onclick="appendCalc('Math.sqrt(')">√x</button>
+        <button class="btn-sci" onclick="appendCalc('^2')">x²</button>
+        <button class="btn-sci" onclick="appendCalc('^')">xⁿ</button>
+        <button class="btn-sci" onclick="appendCalc('Math.log10(')">log</button>
+        <button class="btn-sci" onclick="appendCalc('Math.log(')">ln</button>
 
-      <button class="btn-sci" onclick="appendCalc('-')">(-)</button>
-      <button class="btn-sci" onclick="appendCalc('°')">°'″</button>
-      <button class="btn-sci" onclick="appendCalc('hyp')">hyp</button>
-      <button class="btn-sci" onclick="appendCalc('Math.sin(')">sin</button>
-      <button class="btn-sci" onclick="appendCalc('Math.cos(')">cos</button>
-      <button class="btn-sci" onclick="appendCalc('Math.tan(')">tan</button>
+        <button class="btn-sci" onclick="appendCalc('-')">(-)</button>
+        <button class="btn-sci" onclick="appendCalc('°')">°'″</button>
+        <button class="btn-sci" onclick="appendCalc('hyp')">hyp</button>
+        <button class="btn-sci" onclick="appendCalc('Math.sin(')">sin</button>
+        <button class="btn-sci" onclick="appendCalc('Math.cos(')">cos</button>
+        <button class="btn-sci" onclick="appendCalc('Math.tan(')">tan</button>
 
-      <button class="btn-sci" onclick="appendCalc('RCL')">RCL</button>
-      <button class="btn-sci" onclick="appendCalc('ENG')">ENG</button>
-      <button class="btn-sci" onclick="appendCalc('(')">(</button>
-      <button class="btn-sci" onclick="appendCalc(')')">)</button>
-      <button class="btn-sci" onclick="appendCalc('S⇔D')">S⇔D</button>
-      <button class="btn-sci" onclick="appendCalc('M+')">M+</button>
+        <button class="btn-sci" onclick="appendCalc('RCL')">RCL</button>
+        <button class="btn-sci" onclick="appendCalc('ENG')">ENG</button>
+        <button class="btn-sci" onclick="appendCalc('(')">(</button>
+        <button class="btn-sci" onclick="appendCalc(')')">)</button>
+        <button class="btn-sci" onclick="appendCalc('S⇔D')">S⇔D</button>
+        <button class="btn-sci" onclick="appendCalc('M+')">M+</button>
+      </div>
     </div>
 
-    <!-- MAIN NUMERIC KEYPAD -->
     <div class="main-grid">
       <button class="btn-key btn-num" onclick="appendCalc('7')">7</button>
       <button class="btn-key btn-num" onclick="appendCalc('8')">8</button>
@@ -179,20 +182,21 @@
     </div>
   </div>
 
-  <!-- AI / CAMERA SCANNER BOTTOM SHEET DRAWER -->
-  <div class="online-drawer" id="onlineDrawer">
-    <div class="drawer-handle" onclick="toggleDrawer()"></div>
-    <div class="drawer-title" onclick="toggleDrawer()">⬆️ Vuta hapa kupata Math Solver AI & Camera</div>
+  <!-- OVERLAY & TERMUX-STYLE SIDE DRAWER -->
+  <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+
+  <div class="side-drawer" id="sideDrawer">
+    <div class="drawer-header">🤖 Online AI & Camera Mode</div>
 
     <button class="action-btn btn-ai" onclick="solveManualText()">Fafanua Hatua kwa AI</button>
 
     <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none" onchange="processImage(event)">
-    <button class="action-btn btn-camera" onclick="document.getElementById('cameraInput').click()">📸 Piga Picha Ya Hesabu (Camera)</button>
+    <button class="action-btn btn-camera" onclick="document.getElementById('cameraInput').click()">📸 Piga Picha (Camera)</button>
 
     <input type="file" id="galleryInput" accept="image/*" style="display:none" onchange="processImage(event)">
-    <button class="action-btn btn-gallery" onclick="document.getElementById('galleryInput').click()">🖼️ Chagua Picha Kutoka Gallery</button>
+    <button class="action-btn btn-gallery" onclick="document.getElementById('galleryInput').click()">🖼️ Gallery</button>
 
-    <div id="output">Hatua na maelezo ya AI yataonekana hapa...</div>
+    <div id="output">Vuta kioo kutoka kushoto kwenda kulia kufungua menu hii.</div>
   </div>
 
   <script src="script.js"></script>
