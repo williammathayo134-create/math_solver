@@ -21,7 +21,7 @@ function clearCalc() {
 function calculateLocal() {
   const display = document.getElementById('manualMath');
   const output = document.getElementById('output');
-  
+
   if (!display.value.trim()) return;
 
   try {
@@ -34,17 +34,9 @@ function calculateLocal() {
   }
 }
 
-// --- AI SOLVER FOR TEXT (MAANDISHI) ---
-
-async function solveManualText() {
-  const input = document.getElementById('manualMath').value;
+// --- CORE AI SOLVER FUNCTION ---
+async function sendToAI(mathText) {
   const output = document.getElementById('output');
-
-  if (!input.trim()) {
-    output.innerText = "Tafadhali andika hesabu kwanza!";
-    return;
-  }
-
   output.innerText = "🟢 Math Solver AI inachakata majibu...";
 
   try {
@@ -57,11 +49,11 @@ async function solveManualText() {
       body: JSON.stringify({
         model: "llama-3.1-8b-instant",
         messages: [
-          { 
-            role: "system", 
-            content: "Wewe ni 'Math Solver AI'. Usiwahi kutaja Groq, Llama, au Meta. Ukiulizwa wewe ni nani, sema wewe ni Math Solver AI. Tatua hesabu hii na utoe majibu na hatua zote kwa Kiswahili rasmi na kwa ufasaha." 
+          {
+            role: "system",
+            content: "Wewe ni 'Math Solver AI'. Usiwahi kutaja Groq, Llama, au Meta. Ukiulizwa wewe ni nani, sema wewe ni Math Solver AI. Tatua hesabu hii na utoe majibu na hatua zote kwa Kiswahili rasmi na kwa ufasaha."
           },
-          { role: "user", content: input }
+          { role: "user", content: mathText }
         ],
         temperature: 0.2
       })
@@ -80,55 +72,50 @@ async function solveManualText() {
   }
 }
 
-// --- AI SOLVER FOR IMAGE (PICHA) ---
+// --- AI SOLVER FOR TEXT (MAANDISHI) ---
+function solveManualText() {
+  const input = document.getElementById('manualMath').value;
+  if (!input.trim()) {
+    document.getElementById('output').innerText = "Tafadhali andika hesabu kwanza!";
+    return;
+  }
+  sendToAI(input);
+}
 
-function processImage(event) {
+// --- AI SOLVER FOR IMAGE (PICHA NA TESSERACT OCR) ---
+async function processImage(event) {
   const file = event.target.files[0];
   if (!file) return;
 
   const output = document.getElementById('output');
-  output.innerText = "📸 🟢 Math Solver AI inasoma picha...";
+  output.innerText = "🔍 Tesseract inasoma namba na maandishi kwenye picha...";
 
-  const reader = new FileReader();
-  reader.onloadend = async function () {
-    const base64Data = reader.result;
-
-    try {
-      const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${GROQ_API_KEY}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          model: "groq/compound",
-          messages: [
-            {
-              role: "user",
-              content: [
-                { 
-                  type: "text", 
-                  text: "Wewe ni Math Solver AI. Usitaje Groq wala Llama. Tatua hesabu iliyo kwenye picha hii hatua kwa hatua kwa Kiswahili." 
-                },
-                { type: "image_url", image_url: { url: base64Data } }
-              ]
-            }
-          ]
-        })
-      });
-
-      const data = await response.json();
-      if (data.choices && data.choices[0] && data.choices[0].message) {
-        output.innerText = data.choices[0].message.content;
-      } else if (data.error) {
-        output.innerText = "Hitilafu ya Mfumo: " + data.error.message;
-      } else {
-        output.innerText = "Imeshindwa kusoma picha. Hakikisha picha ipo wazi.";
+  try {
+    const result = await Tesseract.recognize(
+      file,
+      'eng',
+      {
+        logger: m => {
+          if (m.status === 'recognizing text') {
+            output.innerText = `🔍 Inasoma picha: ${Math.round(m.progress * 100)}%`;
+          }
+        }
       }
-    } catch (err) {
-      output.innerText = "Hitilafu: " + err.message;
-    }
-  };
+    );
 
-  reader.readAsDataURL(file);
+    const extractedText = result.data.text.trim();
+
+    if (!extractedText) {
+      output.innerText = "⚠️ Imeshindwa kusoma hesabu kwenye picha. Jaribu kupiga picha iliyonyooka na yenye mwanga mzuri.";
+      return;
+    }
+
+    document.getElementById('manualMath').value = extractedText;
+    output.innerText = `✅ Picha imesomwa: "${extractedText}"\n🟢 Inatuma kwa Math Solver AI...`;
+
+    await sendToAI(extractedText);
+
+  } catch (err) {
+    output.innerText = "Hitilafu ya OCR: " + err.message;
+  }
 }
