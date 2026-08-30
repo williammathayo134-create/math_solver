@@ -26,7 +26,8 @@
     
     .action-btn { width: 100%; padding: 12px; margin-top: 8px; font-size: 15px; font-weight: bold; border: none; border-radius: 5px; cursor: pointer; }
     .btn-ai { background: #2196F3; color: white; }
-    .btn-img { background: #0288d1; color: white; }
+    .btn-camera { background: #009688; color: white; }
+    .btn-gallery { background: #0288d1; color: white; }
     
     #output { margin-top: 12px; background: #1e1e1e; padding: 12px; border-radius: 5px; font-size: 14px; white-space: pre-wrap; word-wrap: break-word; min-height: 80px; border-left: 4px solid #4CAF50; }
   </style>
@@ -106,8 +107,13 @@
 
   <button class="action-btn btn-ai" onclick="solveManualText()">Fafanua kwa Math Solver AI</button>
   
-  <input type="file" id="imageInput" accept="image/*" style="display:none" onchange="processImage(event)">
-  <button class="action-btn btn-img" onclick="document.getElementById('imageInput').click()">📸 Piga Picha / Chagua Picha</button>
+  <!-- Direct Camera Input -->
+  <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none" onchange="processImage(event)">
+  <button class="action-btn btn-camera" onclick="document.getElementById('cameraInput').click()">📸 Piga Picha (Camera)</button>
+
+  <!-- Gallery Input -->
+  <input type="file" id="galleryInput" accept="image/*" style="display:none" onchange="processImage(event)">
+  <button class="action-btn btn-gallery" onclick="document.getElementById('galleryInput').click()">🖼️ Chagua Picha kutoka Gallery</button>
 
   <div id="output">Jibu na Hatua zinaonekana hapa...</div>
 
