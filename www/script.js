@@ -2,6 +2,9 @@ const GROQ_API_KEY = "__GROQ_API_KEY__";
 const CURRENT_VERSION = "1.0.0";
 const VERSION_CHECK_URL = "https://raw.githubusercontent.com/williammathayo134-create/math_solver/main/www/version.json";
 
+// Model rasmi zilizopo kwenye Groq Production Docs
+const OFFICIAL_MODEL = "llama-3.3-70b-versatile";
+
 // --- AUTO UPDATE CHECKER ---
 async function checkForAppUpdates() {
   try {
@@ -27,31 +30,6 @@ async function checkForAppUpdates() {
 window.addEventListener('DOMContentLoaded', () => {
   checkForAppUpdates();
 });
-
-// --- DYNAMIC MODEL FETCHING (CHUJIO LA MODELS RASMI) ---
-async function getActiveTextModel() {
-  try {
-    const res = await fetch("https://api.groq.com/openai/v1/models", {
-      headers: { "Authorization": `Bearer ${GROQ_API_KEY}` }
-    });
-    const data = await res.json();
-    if (data.data && data.data.length > 0) {
-      const validModels = data.data.filter(m => 
-        (m.id.includes("llama") || m.id.includes("gemma")) &&
-        !m.id.includes("whisper") && 
-        !m.id.includes("vision") &&
-        !m.id.includes("canopylabs") &&
-        !m.id.includes("guard")
-      );
-      if (validModels.length > 0) {
-        return validModels[0].id;
-      }
-    }
-  } catch (err) {
-    console.error("Imeshindwa kupata orodha ya models:", err);
-  }
-  return "llama-3.3-70b-versatile";
-}
 
 // --- CALCULATOR FUNCTIONS (LOCAL / OFFLINE) ---
 function appendCalc(val) {
@@ -80,14 +58,12 @@ function calculateLocal() {
   }
 }
 
-// --- CORE AI SOLVER ---
+// --- CORE AI SOLVER FOR TEXT ---
 async function sendToAI(mathText) {
   const output = document.getElementById('output');
-  output.innerText = "🟢 WILLY CALCULATOR inafuta model hai na kuchakata majibu...";
+  output.innerText = "🟢 WILLY CALCULATOR inachakata majibu...";
 
   try {
-    const activeModel = await getActiveTextModel();
-
     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -95,7 +71,7 @@ async function sendToAI(mathText) {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: activeModel,
+        model: OFFICIAL_MODEL,
         messages: [
           { 
             role: "system", 
@@ -130,62 +106,44 @@ function solveManualText() {
   sendToAI(input);
 }
 
-// --- VISION AI SCANNER FOR IMAGES ---
+// --- IMAGE MATH SCANNER (FREE OCR + LLAMA 3.3 70B) ---
 async function processImage(event) {
   const file = event.target.files[0];
   if (!file) return;
 
   const output = document.getElementById('output');
-  output.innerText = "🔍 Vision AI inasoma na kutatua hesabu kwenye picha...";
+  output.innerText = "🔍 Inasoma maandishi kwenye picha...";
 
-  const reader = new FileReader();
-  reader.onloadend = async function () {
-    const base64Image = reader.result;
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("apikey", "helloworld"); // Free OCR API key
+  formData.append("language", "eng");
 
-    try {
-      const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${GROQ_API_KEY}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          model: "llama-3.2-11b-vision-preview",
-          messages: [
-            {
-              role: "user",
-              content: [
-                {
-                  type: "text",
-                  text: "Soma hesabu iliyopo kwenye picha hii (iwe ya mkono au iliyochapishwa), kisha uitatue na utoe majibu pamoja na hatua zote kwa Kiswahili rasmi."
-                },
-                {
-                  type: "image_url",
-                  image_url: {
-                    url: base64Image
-                  }
-                }
-              ]
-            }
-          ],
-          temperature: 0.2
-        })
-      });
+  try {
+    const ocrResponse = await fetch("https://api.ocr.space/parse/image", {
+      method: "POST",
+      body: formData
+    });
+    
+    const ocrData = await ocrResponse.json();
 
-      const data = await response.json();
-
-      if (data.choices && data.choices[0] && data.choices[0].message) {
-        output.innerText = data.choices[0].message.content;
-      } else if (data.error) {
-        output.innerText = "Hitilafu ya Vision AI: " + data.error.message;
-      } else {
-        output.innerText = "Imeshindwa kusoma picha.";
+    if (ocrData.ParsedResults && ocrData.ParsedResults.length > 0) {
+      const extractedText = ocrData.ParsedResults[0].ParsedText.trim();
+      
+      if (!extractedText) {
+        output.innerText = "⚠️ Haikuweza kusoma maandishi kwenye picha. Hakikisha picha inaonekana vizuri.";
+        return;
       }
-    } catch (err) {
-      output.innerText = "Hitilafu ya Mtandao: " + err.message;
+
+      document.getElementById('manualMath').value = extractedText;
+      output.innerText = "📝 Hesabu iliyosomwa: " + extractedText + "\n\n🟢 Inatuma kwa AI kupata majibu...";
+      
+      // Tuma hesabu iliyosomwa kwa Llama-3.3-70b-versatile
+      sendToAI(extractedText);
+    } else {
+      output.innerText = "⚠️ Haikuweza kusoma picha hiyo. Jaribu kupiga picha iliyonyooka.";
     }
-  };
-
-  reader.readAsDataURL(file);
+  } catch (err) {
+    output.innerText = "⚠️ Hitilafu ya Kusoma Picha: " + err.message;
+  }
 }
-
