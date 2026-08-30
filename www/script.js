@@ -2,9 +2,6 @@ const GROQ_API_KEY = "__GROQ_API_KEY__";
 const CURRENT_VERSION = "1.0.0";
 const VERSION_CHECK_URL = "https://raw.githubusercontent.com/williammathayo134-create/math_solver/main/www/version.json";
 
-// Model rasmi zilizopo kwenye Groq Production Docs
-const OFFICIAL_MODEL = "llama-3.3-70b-versatile";
-
 // --- AUTO UPDATE CHECKER ---
 async function checkForAppUpdates() {
   try {
@@ -58,40 +55,76 @@ function calculateLocal() {
   }
 }
 
-// --- CORE AI SOLVER FOR TEXT ---
+// --- SMART AUTO-TRY SOLVER (LOOPS THROUGH ALL YOUR AVAILABLE MODELS) ---
 async function sendToAI(mathText) {
   const output = document.getElementById('output');
-  output.innerText = "🟢 WILLY CALCULATOR inachakata majibu...";
+  output.innerText = "🟢 WILLY CALCULATOR inafanya jaribio la kubaini model inayokubali...";
 
   try {
-    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${GROQ_API_KEY}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        model: OFFICIAL_MODEL,
-        messages: [
-          { 
-            role: "system", 
-            content: "Wewe ni 'WILLY CALCULATOR AI'. Usiwahi kutaja Groq au Meta. Tatua hesabu hii na utoe majibu na hatua zote kwa Kiswahili rasmi na kwa ufasaha." 
-          },
-          { role: "user", content: mathText }
-        ],
-        temperature: 0.2
-      })
+    // 1. Chukua orodha ya model zote za akaunti yako
+    const modelsRes = await fetch("https://api.groq.com/openai/v1/models", {
+      headers: { "Authorization": `Bearer ${GROQ_API_KEY}` }
     });
+    const modelsData = await modelsRes.json();
 
-    const data = await response.json();
-
-    if (data.choices && data.choices[0] && data.choices[0].message) {
-      output.innerText = data.choices[0].message.content;
-    } else if (data.error) {
-      output.innerText = "⚠️ Hitilafu: " + data.error.message;
-    } else {
-      output.innerText = "⚠️ Mfumo umeshindwa kupata jibu, jaribu tena.";
+    if (!modelsData.data || modelsData.data.length === 0) {
+      output.innerText = "⚠️ Imeshindwa kupata orodha ya models. Angalia API key yako.";
+      return;
     }
+
+    // 2. Chuja model za ajabu au za sauti
+    const usableModels = modelsData.data
+      .map(m => m.id)
+      .filter(id => 
+        !id.includes("whisper") && 
+        !id.includes("guard") && 
+        !id.includes("canopylabs") &&
+        !id.includes("orpheus")
+      );
+
+    let success = false;
+    let lastError = "";
+
+    // 3. Mfumo unajaribu model moja baada ya nyingine mpaka ipatikane inayojibu
+    for (const modelId of usableModels) {
+      try {
+        const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${GROQ_API_KEY}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            model: modelId,
+            messages: [
+              { 
+                role: "system", 
+                content: "Wewe ni 'WILLY CALCULATOR AI'. Usiwahi kutaja Groq au Meta. Tatua hesabu hii na utoe majibu na hatua zote kwa Kiswahili rasmi na kwa ufasaha." 
+              },
+              { role: "user", content: mathText }
+            ],
+            temperature: 0.2
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.choices && data.choices[0] && data.choices[0].message) {
+          output.innerText = data.choices[0].message.content;
+          success = true;
+          break; // Mfumo umefanikiwa!
+        } else if (data.error) {
+          lastError = data.error.message;
+        }
+      } catch (e) {
+        lastError = e.message;
+      }
+    }
+
+    if (!success) {
+      output.innerText = "⚠️ Model zote zimefeli. Hitilafu ya mwisho: " + lastError;
+    }
+
   } catch (err) {
     output.innerText = "⚠️ Hitilafu ya Mtandao: " + err.message;
   }
@@ -106,7 +139,7 @@ function solveManualText() {
   sendToAI(input);
 }
 
-// --- IMAGE MATH SCANNER (FREE OCR + LLAMA 3.3 70B) ---
+// --- IMAGE MATH SCANNER (FREE OCR + SMART AI SOLVER) ---
 async function processImage(event) {
   const file = event.target.files[0];
   if (!file) return;
@@ -116,7 +149,7 @@ async function processImage(event) {
 
   const formData = new FormData();
   formData.append("file", file);
-  formData.append("apikey", "helloworld"); // Free OCR API key
+  formData.append("apikey", "helloworld");
   formData.append("language", "eng");
 
   try {
@@ -138,7 +171,6 @@ async function processImage(event) {
       document.getElementById('manualMath').value = extractedText;
       output.innerText = "📝 Hesabu iliyosomwa: " + extractedText + "\n\n🟢 Inatuma kwa AI kupata majibu...";
       
-      // Tuma hesabu iliyosomwa kwa Llama-3.3-70b-versatile
       sendToAI(extractedText);
     } else {
       output.innerText = "⚠️ Haikuweza kusoma picha hiyo. Jaribu kupiga picha iliyonyooka.";
