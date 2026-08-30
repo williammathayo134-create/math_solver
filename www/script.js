@@ -1,14 +1,12 @@
 // GitHub Secrets itaingiza API key yako halisi hapa kiotomatiki wakati wa kujenga APK
 const GROQ_API_KEY = "__GROQ_API_KEY__";
 
-// Orodha ya Models 6 za akiba (Fallback Array)
+// Models rasmi zilizopo kwenye Groq Console yako
 const MODELS = [
-  "llama-3.3-70b-versatile",
   "llama-3.1-8b-instant",
-  "gemma2-9b-it",
-  "deepseek-r1-distill-llama-70b",
-  "llama3-70b-8192",
-  "llama3-8b-8192"
+  "llama-3.3-70b-versatile",
+  "openai/gpt-oss-120b",
+  "openai/gpt-oss-20b"
 ];
 
 // --- CALCULATOR FUNCTIONS (LOCAL / OFFLINE) ---
