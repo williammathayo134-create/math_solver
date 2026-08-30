@@ -3,6 +3,13 @@ const k1 = "gsk_BPfPPyoQKFZDrHGd4PvA";
 const k2 = "WGdyb3FYeTDllJ3vzkMZzJ4kHa9qjZYq";
 const GROQ_API_KEY = k1 + k2;
 
+// Orodha ya Models za Akiba (Fallback List)
+const MODELS = [
+  "gemma2-9b-it",
+  "llama-3.3-70b-versatile",
+  "llama-3.1-8b-instant"
+];
+
 // --- CALCULATOR FUNCTIONS (LOCAL / OFFLINE) ---
 function appendCalc(val) {
   const display = document.getElementById('manualMath');
@@ -30,44 +37,53 @@ function calculateLocal() {
   }
 }
 
-// --- CORE AI SOLVER FUNCTION ---
+// --- CORE AI SOLVER FUNCTION WITH AUTOMATIC FALLBACK ---
 async function sendToAI(mathText) {
   const output = document.getElementById('output');
-  output.innerText = "🟢 Math Solver AI inachakata majibu...";
+  output.innerText = "🟢 WILLY CALCULATOR inachakata majibu...";
 
-  try {
-    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${GROQ_API_KEY}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        model: "deepseek-r1-distill-llama-70b",
-        messages: [
-          { 
-            role: "system", 
-            content: "Wewe ni 'WILLY CALCULATOR AI'. Usiwahi kutaja Groq, Llama, au Meta. Tatua hesabu hii na utoe majibu na hatua zote kwa Kiswahili rasmi na kwa ufasaha." 
-          },
-          { 
-            role: "user", 
-            content: mathText 
-          }
-        ],
-        temperature: 0.2
-      })
-    });
+  let success = false;
+  let lastError = "";
 
-    const data = await response.json();
-    if (data.choices && data.choices[0] && data.choices[0].message) {
-      output.innerText = data.choices[0].message.content;
-    } else if (data.error) {
-      output.innerText = "Hitilafu ya Mfumo: " + data.error.message;
-    } else {
-      output.innerText = "Imeshindwa kupata jibu, jaribu tena.";
+  for (let i = 0; i < MODELS.length; i++) {
+    const currentModel = MODELS[i];
+    try {
+      const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${GROQ_API_KEY}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          model: currentModel,
+          messages: [
+            { 
+              role: "system", 
+              content: "Wewe ni 'WILLY CALCULATOR AI'. Usiwahi kutaja Groq, Llama, au Meta. Tatua hesabu hii na utoe majibu na hatua zote kwa Kiswahili rasmi na kwa ufasaha." 
+            },
+            { role: "user", content: mathText }
+          ],
+          temperature: 0.2
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.choices && data.choices[0] && data.choices[0].message) {
+        output.innerText = data.choices[0].message.content;
+        success = true;
+        break; // Acha kuendelea pindi model moja ikifanikiwa
+      } else if (data.error) {
+        lastError = data.error.message;
+      }
+    } catch (err) {
+      lastError = err.message;
     }
-  } catch (err) {
-    output.innerText = "Hitilafu ya Mtandao: " + err.message;
+  }
+
+  // Kama model zote tatu zimefeli
+  if (!success) {
+    output.innerText = "⚠️ Imeshindwa kupata jibu kutoka kwenye Server.\nHitilafu: " + lastError + "\n\nOrodha ya models zilizojaribiwa:\n• " + MODELS.join("\n• ");
   }
 }
 
