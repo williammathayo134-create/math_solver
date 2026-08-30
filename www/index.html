@@ -12,13 +12,11 @@
     
     #manualMath { width: 100%; height: 55px; font-size: 22px; background: #000; color: #0f0; text-align: right; border: 1px solid #333; padding: 8px; border-radius: 6px; margin-bottom: 8px; }
     
-    /* Scientific Grid - 5 Columns */
     .sci-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; margin-bottom: 6px; }
     .sci-btn { background: #262626; color: #00e676; border: 1px solid #333; padding: 10px 2px; font-size: 12px; border-radius: 4px; font-weight: bold; cursor: pointer; }
     .sci-btn:active { background: #333; }
     .mem-btn { color: #ffca28; }
     
-    /* Basic Keypad Grid */
     .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
     button.grid-btn { padding: 14px 2px; font-size: 18px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
     .btn-num { background: #1e1e1e; color: #fff; }
@@ -42,42 +40,36 @@
 
   <!-- Scientific Keys -->
   <div class="sci-grid">
-    <!-- Memory & Modes -->
     <button class="sci-btn mem-btn" onclick="appendCalc('MC')">MC</button>
     <button class="sci-btn mem-btn" onclick="appendCalc('MR')">MR</button>
     <button class="sci-btn mem-btn" onclick="appendCalc('M+')">M+</button>
     <button class="sci-btn mem-btn" onclick="appendCalc('M-')">M-</button>
     <button class="sci-btn" onclick="appendCalc('Deg')">Deg/Rad</button>
 
-    <!-- Trigonometry -->
     <button class="sci-btn" onclick="appendCalc('sin(')">sin</button>
     <button class="sci-btn" onclick="appendCalc('cos(')">cos</button>
     <button class="sci-btn" onclick="appendCalc('tan(')">tan</button>
     <button class="sci-btn" onclick="appendCalc('asin(')">sin⁻¹</button>
     <button class="sci-btn" onclick="appendCalc('acos(')">cos⁻¹</button>
 
-    <!-- Hyperbolic & Inverses -->
     <button class="sci-btn" onclick="appendCalc('sinh(')">sinh</button>
     <button class="sci-btn" onclick="appendCalc('cosh(')">cosh</button>
     <button class="sci-btn" onclick="appendCalc('tanh(')">tanh</button>
     <button class="sci-btn" onclick="appendCalc('atan(')">tan⁻¹</button>
     <button class="sci-btn" onclick="appendCalc('Matrix([');">[Matrix]</button>
 
-    <!-- Logs & Powers -->
     <button class="sci-btn" onclick="appendCalc('log(')">log</button>
     <button class="sci-btn" onclick="appendCalc('ln(')">ln</button>
     <button class="sci-btn" onclick="appendCalc('^')">x^y</button>
     <button class="sci-btn" onclick="appendCalc('^2')">x²</button>
     <button class="sci-btn" onclick="appendCalc('^3')">x³</button>
 
-    <!-- Roots & Factors -->
     <button class="sci-btn" onclick="appendCalc('sqrt(')">√x</button>
     <button class="sci-btn" onclick="appendCalc('cbrt(')">∛x</button>
     <button class="sci-btn" onclick="appendCalc('!')">n!</button>
     <button class="sci-btn" onclick="appendCalc('%')">%</button>
     <button class="sci-btn" onclick="appendCalc('Mod')">Mod</button>
 
-    <!-- Constants & Fractions -->
     <button class="sci-btn" onclick="appendCalc('pi')">π</button>
     <button class="sci-btn" onclick="appendCalc('e')">e</button>
     <button class="sci-btn" onclick="appendCalc('1/')">1/x</button>

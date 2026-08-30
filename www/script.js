@@ -1,11 +1,6 @@
-// GitHub Secrets itaingiza API key yako halisi hapa kiotomatiki
 const GROQ_API_KEY = "__GROQ_API_KEY__";
-
-// Toleo la sasa la App kwenye simu
 const CURRENT_VERSION = "1.0.0";
-
-// Badilisha USERNAME na REPOSITORY hapa chini na za kwako za GitHub
-const VERSION_CHECK_URL = "https://raw.githubusercontent.com/USERNAME/REPOSITORY/main/www/version.json";
+const VERSION_CHECK_URL = "https://raw.githubusercontent.com/williammathayo134-create/math_solver/main/www/version.json";
 
 // --- AUTO UPDATE CHECKER ---
 async function checkForAppUpdates() {
@@ -29,12 +24,11 @@ async function checkForAppUpdates() {
   }
 }
 
-// Inakagua update pale tu app inapofunguka
 window.addEventListener('DOMContentLoaded', () => {
   checkForAppUpdates();
 });
 
-// --- DYNAMIC MODEL FETCHING FROM GROQ ---
+// --- DYNAMIC MODEL FETCHING (CHUJIO LA MODELS RASMI) ---
 async function getActiveTextModel() {
   try {
     const res = await fetch("https://api.groq.com/openai/v1/models", {
@@ -42,8 +36,16 @@ async function getActiveTextModel() {
     });
     const data = await res.json();
     if (data.data && data.data.length > 0) {
-      const textModels = data.data.filter(m => !m.id.includes("whisper") && !m.id.includes("vision"));
-      return textModels[0].id;
+      const validModels = data.data.filter(m => 
+        (m.id.includes("llama") || m.id.includes("gemma")) &&
+        !m.id.includes("whisper") && 
+        !m.id.includes("vision") &&
+        !m.id.includes("canopylabs") &&
+        !m.id.includes("guard")
+      );
+      if (validModels.length > 0) {
+        return validModels[0].id;
+      }
     }
   } catch (err) {
     console.error("Imeshindwa kupata orodha ya models:", err);
@@ -78,7 +80,7 @@ function calculateLocal() {
   }
 }
 
-// --- CORE AI SOLVER WITH DYNAMIC MODEL SELECTION ---
+// --- CORE AI SOLVER ---
 async function sendToAI(mathText) {
   const output = document.getElementById('output');
   output.innerText = "🟢 WILLY CALCULATOR inafuta model hai na kuchakata majibu...";
@@ -119,7 +121,6 @@ async function sendToAI(mathText) {
   }
 }
 
-// --- AI SOLVER FOR TEXT BUTTON ---
 function solveManualText() {
   const input = document.getElementById('manualMath').value;
   if (!input.trim()) {
@@ -187,3 +188,4 @@ async function processImage(event) {
 
   reader.readAsDataURL(file);
 }
+
