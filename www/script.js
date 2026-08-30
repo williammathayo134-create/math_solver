@@ -47,7 +47,7 @@ async function sendToAI(mathText) {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: "llama3-70b-8192",
+        model: model: "deepseek-r1-distill-llama-70b",
         messages: [
           {
             role: "system",
