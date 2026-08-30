@@ -1,13 +1,14 @@
-// Obfuscated API Key
-const k1 = "gsk_BPfPPyoQKFZDrHGd4PvA";
-const k2 = "WGdyb3FYeTDllJ3vzkMZzJ4kHa9qjZYq";
-const GROQ_API_KEY = k1 + k2;
+// GitHub Secrets itaingiza API key yako halisi hapa kiotomatiki wakati wa kujenga APK
+const GROQ_API_KEY = "__GROQ_API_KEY__";
 
-// Orodha ya Models za Akiba (Fallback List)
+// Orodha ya Models 6 za akiba (Fallback Array)
 const MODELS = [
-  "gemma2-9b-it",
   "llama-3.3-70b-versatile",
-  "llama-3.1-8b-instant"
+  "llama-3.1-8b-instant",
+  "gemma2-9b-it",
+  "deepseek-r1-distill-llama-70b",
+  "llama3-70b-8192",
+  "llama3-8b-8192"
 ];
 
 // --- CALCULATOR FUNCTIONS (LOCAL / OFFLINE) ---
@@ -45,6 +46,7 @@ async function sendToAI(mathText) {
   let success = false;
   let lastError = "";
 
+  // Mfumo unazunguka kwenye kila model hadi ipatikane inayofanya kazi
   for (let i = 0; i < MODELS.length; i++) {
     const currentModel = MODELS[i];
     try {
@@ -72,7 +74,7 @@ async function sendToAI(mathText) {
       if (data.choices && data.choices[0] && data.choices[0].message) {
         output.innerText = data.choices[0].message.content;
         success = true;
-        break; // Acha kuendelea pindi model moja ikifanikiwa
+        break; // Acha mara moja ikipata jibu
       } else if (data.error) {
         lastError = data.error.message;
       }
@@ -81,9 +83,9 @@ async function sendToAI(mathText) {
     }
   }
 
-  // Kama model zote tatu zimefeli
+  // Kama model zote zimefeli
   if (!success) {
-    output.innerText = "⚠️ Imeshindwa kupata jibu kutoka kwenye Server.\nHitilafu: " + lastError + "\n\nOrodha ya models zilizojaribiwa:\n• " + MODELS.join("\n• ");
+    output.innerText = "⚠️ Imeshindwa kupata jibu kutoka kwenye Server.\nHitilafu ya Mwisho: " + lastError;
   }
 }
 
