@@ -6,7 +6,7 @@
   <title>WILLY CALCULATOR</title>
   <style>
     * { box-sizing: border-box; }
-    body { background-color: #121212; color: #fff; font-family: Arial, sans-serif; padding: 10px; margin: 0; }
+    body { background-color: #121212; color: #fff; font-family: Arial, sans-serif; padding: 10px; margin: 0; overflow-x: hidden; }
     h2 { text-align: center; color: #4CAF50; margin-bottom: 2px; margin-top: 5px; }
     .status { text-align: center; font-size: 11px; color: #888; margin-bottom: 10px; }
     
@@ -17,19 +17,58 @@
     .sci-btn:active { background: #333; }
     .mem-btn { color: #ffca28; }
     
-    .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+    .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-bottom: 50px; }
     button.grid-btn { padding: 14px 2px; font-size: 18px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
     .btn-num { background: #1e1e1e; color: #fff; }
     .btn-op { background: #ff9800; color: #fff; }
     .btn-clear { background: #f44336; color: #fff; }
     .btn-equal { background: #4CAF50; color: #fff; grid-column: span 2; }
     
+    /* BOTTOM SHEET (ONLINE AI DRAWER) */
+    .online-drawer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #1e1e1e;
+      border-top: 3px solid #4CAF50;
+      border-top-left-radius: 18px;
+      border-top-right-radius: 18px;
+      padding: 12px;
+      transform: translateY(calc(100% - 40px));
+      transition: transform 0.3s ease-in-out;
+      box-shadow: 0 -5px 20px rgba(0,0,0,0.8);
+      z-index: 1000;
+    }
+
+    .online-drawer.open {
+      transform: translateY(0);
+    }
+
+    .drawer-handle {
+      width: 50px;
+      height: 6px;
+      background: #4CAF50;
+      border-radius: 3px;
+      margin: 0 auto 10px auto;
+      cursor: pointer;
+    }
+
+    .drawer-title {
+      text-align: center;
+      font-size: 13px;
+      font-weight: bold;
+      color: #00e676;
+      margin-bottom: 8px;
+      cursor: pointer;
+    }
+
     .action-btn { width: 100%; padding: 12px; margin-top: 8px; font-size: 15px; font-weight: bold; border: none; border-radius: 5px; cursor: pointer; }
     .btn-ai { background: #2196F3; color: white; }
     .btn-camera { background: #009688; color: white; }
     .btn-gallery { background: #0288d1; color: white; }
     
-    #output { margin-top: 12px; background: #1e1e1e; padding: 12px; border-radius: 5px; font-size: 14px; white-space: pre-wrap; word-wrap: break-word; min-height: 80px; border-left: 4px solid #4CAF50; }
+    #output { margin-top: 12px; background: #121212; padding: 12px; border-radius: 5px; font-size: 14px; white-space: pre-wrap; word-wrap: break-word; min-height: 80px; border-left: 4px solid #4CAF50; max-height: 200px; overflow-y: auto; }
   </style>
 </head>
 <body>
@@ -105,17 +144,21 @@
     <button class="grid-btn btn-equal" onclick="calculateLocal()">=</button>
   </div>
 
-  <button class="action-btn btn-ai" onclick="solveManualText()">Fafanua kwa Math Solver AI</button>
-  
-  <!-- Direct Camera Input -->
-  <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none" onchange="processImage(event)">
-  <button class="action-btn btn-camera" onclick="document.getElementById('cameraInput').click()">📸 Piga Picha (Camera)</button>
+  <!-- DRAWER YA ONLINE / AI MODE -->
+  <div class="online-drawer" id="onlineDrawer">
+    <div class="drawer-handle" onclick="toggleDrawer()"></div>
+    <div class="drawer-title" onclick="toggleDrawer()">⬆️ Vuta au Bonyeza hapa kupata AI / Camera Mode</div>
 
-  <!-- Gallery Input -->
-  <input type="file" id="galleryInput" accept="image/*" style="display:none" onchange="processImage(event)">
-  <button class="action-btn btn-gallery" onclick="document.getElementById('galleryInput').click()">🖼️ Chagua Picha kutoka Gallery</button>
+    <button class="action-btn btn-ai" onclick="solveManualText()">Fafanua kwa Math Solver AI</button>
+    
+    <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none" onchange="processImage(event)">
+    <button class="action-btn btn-camera" onclick="document.getElementById('cameraInput').click()">📸 Piga Picha (Camera)</button>
 
-  <div id="output">Jibu na Hatua zinaonekana hapa...</div>
+    <input type="file" id="galleryInput" accept="image/*" style="display:none" onchange="processImage(event)">
+    <button class="action-btn btn-gallery" onclick="document.getElementById('galleryInput').click()">🖼️ Chagua Picha kutoka Gallery</button>
+
+    <div id="output">Jibu na Hatua zinaonekana hapa...</div>
+  </div>
 
   <script src="script.js"></script>
 </body>

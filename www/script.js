@@ -18,15 +18,55 @@ async function checkForAppUpdates() {
           </button>
         </div>
       ` + output.innerHTML;
+      openDrawer();
     }
   } catch (err) {
     console.log("Haikufanikiwa kuangalia update:", err);
   }
 }
 
+// --- DRAWER TOGGLE & SWIPE LOGIC ---
+function toggleDrawer() {
+  const drawer = document.getElementById('onlineDrawer');
+  drawer.classList.toggle('open');
+}
+
+function openDrawer() {
+  const drawer = document.getElementById('onlineDrawer');
+  if (drawer && !drawer.classList.contains('open')) {
+    drawer.classList.add('open');
+  }
+}
+
+let touchStartY = 0;
+let touchEndY = 0;
+
 window.addEventListener('DOMContentLoaded', () => {
   checkForAppUpdates();
+
+  const drawer = document.getElementById('onlineDrawer');
+  if (drawer) {
+    drawer.addEventListener('touchstart', (e) => {
+      touchStartY = e.changedTouches[0].screenY;
+    }, false);
+
+    drawer.addEventListener('touchend', (e) => {
+      touchEndY = e.changedTouches[0].screenY;
+      handleSwipe();
+    }, false);
+  }
 });
+
+function handleSwipe() {
+  const drawer = document.getElementById('onlineDrawer');
+  if (!drawer) return;
+  if (touchStartY - touchEndY > 40) {
+    drawer.classList.add('open');
+  }
+  if (touchEndY - touchStartY > 40) {
+    drawer.classList.remove('open');
+  }
+}
 
 // --- CALCULATOR FUNCTIONS (LOCAL / OFFLINE) ---
 function appendCalc(val) {
@@ -55,13 +95,13 @@ function calculateLocal() {
   }
 }
 
-// --- SMART AUTO-TRY SOLVER (LOOPS THROUGH ALL YOUR AVAILABLE MODELS) ---
+// --- SMART AUTO-TRY AI SOLVER (LOOPS THROUGH ALL YOUR AVAILABLE MODELS) ---
 async function sendToAI(mathText) {
+  openDrawer();
   const output = document.getElementById('output');
   output.innerText = "🟢 WILLY CALCULATOR inafanya jaribio la kubaini model inayokubali...";
 
   try {
-    // 1. Chukua orodha ya model zote za akaunti yako
     const modelsRes = await fetch("https://api.groq.com/openai/v1/models", {
       headers: { "Authorization": `Bearer ${GROQ_API_KEY}` }
     });
@@ -72,7 +112,6 @@ async function sendToAI(mathText) {
       return;
     }
 
-    // 2. Chuja model za ajabu au za sauti
     const usableModels = modelsData.data
       .map(m => m.id)
       .filter(id => 
@@ -85,7 +124,6 @@ async function sendToAI(mathText) {
     let success = false;
     let lastError = "";
 
-    // 3. Mfumo unajaribu model moja baada ya nyingine mpaka ipatikane inayojibu
     for (const modelId of usableModels) {
       try {
         const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
@@ -112,7 +150,7 @@ async function sendToAI(mathText) {
         if (data.choices && data.choices[0] && data.choices[0].message) {
           output.innerText = data.choices[0].message.content;
           success = true;
-          break; // Mfumo umefanikiwa!
+          break;
         } else if (data.error) {
           lastError = data.error.message;
         }
@@ -133,6 +171,7 @@ async function sendToAI(mathText) {
 function solveManualText() {
   const input = document.getElementById('manualMath').value;
   if (!input.trim()) {
+    openDrawer();
     document.getElementById('output').innerText = "Tafadhali andika hesabu kwanza!";
     return;
   }
@@ -144,6 +183,7 @@ async function processImage(event) {
   const file = event.target.files[0];
   if (!file) return;
 
+  openDrawer();
   const output = document.getElementById('output');
   output.innerText = "🔍 Inasoma maandishi kwenye picha...";
 
@@ -179,3 +219,4 @@ async function processImage(event) {
     output.innerText = "⚠️ Hitilafu ya Kusoma Picha: " + err.message;
   }
 }
+
